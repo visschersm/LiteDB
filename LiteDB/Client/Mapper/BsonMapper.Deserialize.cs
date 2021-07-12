@@ -17,6 +17,7 @@ namespace LiteDB
             typeof(String),
             typeof(Int32),
             typeof(Int64),
+            typeof(UInt64),
             typeof(Boolean),
             typeof(Guid),
             typeof(DateTime),
@@ -277,7 +278,7 @@ namespace LiteDB
                     }
                     else
                     {
-                        member.Setter(obj, this.Deserialize(member.DataType, val));
+                        member.Setter(obj, Convert.ChangeType(this.Deserialize(member.DataType, val), member.DataType));
                     }
                 }
             }

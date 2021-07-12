@@ -86,10 +86,12 @@ namespace LiteDB
                     else
                         break;
                 case TokenType.Int:
-                    if (Int32.TryParse(value, NumberStyles.Any, _numberFormat, out int result))
-                        return new BsonValue(result);
+                    if (Int32.TryParse(value, NumberStyles.Any, _numberFormat, out int resultInt))
+                        return new BsonValue(resultInt);
+                    else if (Int64.TryParse(value, NumberStyles.Any, _numberFormat, out long resultLong))
+                        return new BsonValue(resultLong);
                     else
-                        return new BsonValue(Int64.Parse(value, NumberStyles.Any, _numberFormat));
+                        return new BsonValue(UInt64.Parse(value, NumberStyles.Any, _numberFormat));
                 case TokenType.Double: return new BsonValue(Convert.ToDouble(value, _numberFormat));
                 case TokenType.Word:
                     switch (value.ToLower())
@@ -178,6 +180,7 @@ namespace LiteDB
                 case "$guid": val = new BsonValue(new Guid(value)); break;
                 case "$date": val = new BsonValue(DateTime.Parse(value).ToLocalTime()); break;
                 case "$numberLong": val = new BsonValue(Convert.ToInt64(value, _numberFormat)); break;
+                case "$ulong": val = new BsonValue(Convert.ToUInt64(value, _numberFormat)); break;
                 case "$numberDecimal": val = new BsonValue(Convert.ToDecimal(value, _numberFormat)); break;
                 case "$minValue": val = BsonValue.MinValue; break;
                 case "$maxValue": val = BsonValue.MaxValue; break;

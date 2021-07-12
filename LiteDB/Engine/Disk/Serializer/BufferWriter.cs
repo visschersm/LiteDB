@@ -244,6 +244,7 @@ namespace LiteDB.Engine
         public void Write(Int32 value) => this.WriteNumber(value, BufferExtensions.ToBytes, 4);
         public void Write(Int64 value) => this.WriteNumber(value, BufferExtensions.ToBytes, 8);
         public void Write(UInt32 value) => this.WriteNumber(value, BufferExtensions.ToBytes, 4);
+        public void Write(UInt64 value) => this.WriteNumber(value, BufferExtensions.ToBytes, 8);
         public void Write(Double value) => this.WriteNumber(value, BufferExtensions.ToBytes, 8);
 
         public void Write(Decimal value)
@@ -456,6 +457,12 @@ namespace LiteDB.Engine
                     this.Write((byte)0x12);
                     this.WriteCString(key);
                     this.Write(value.AsInt64);
+                    break;
+
+                case BsonType.UInt64:
+                    this.Write((byte)0x11);
+                    this.WriteCString(key);
+                    this.Write(value.AsUInt64);
                     break;
 
                 case BsonType.Decimal:

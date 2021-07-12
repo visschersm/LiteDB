@@ -65,6 +65,12 @@ namespace LiteDB
             this.RawValue = value;
         }
 
+        public BsonValue(UInt64 value)
+        {
+            this.Type = BsonType.UInt64;
+            this.RawValue = value;
+        }
+
         public BsonValue(Double value)
         {
             this.Type = BsonType.Double;
@@ -126,6 +132,7 @@ namespace LiteDB
             if (value == null) this.Type = BsonType.Null;
             else if (value is Int32) this.Type = BsonType.Int32;
             else if (value is Int64) this.Type = BsonType.Int64;
+            else if (value is UInt64) this.Type = BsonType.UInt64;
             else if (value is Double) this.Type = BsonType.Double;
             else if (value is Decimal) this.Type = BsonType.Decimal;
             else if (value is String) this.Type = BsonType.String;
@@ -232,6 +239,9 @@ namespace LiteDB
         public long AsInt64 => Convert.ToInt64(this.RawValue);
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public ulong AsUInt64 => Convert.ToUInt64(this.RawValue);
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public double AsDouble => Convert.ToDouble(this.RawValue);
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -266,13 +276,16 @@ namespace LiteDB
         public bool IsInt64 => this.Type == BsonType.Int64;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public bool IsUInt64 => this.Type == BsonType.UInt64;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public bool IsDouble => this.Type == BsonType.Double;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public bool IsDecimal => this.Type == BsonType.Decimal;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public bool IsNumber => this.IsInt32 || this.IsInt64 || this.IsDouble || this.IsDecimal;
+        public bool IsNumber => this.IsInt32 || this.IsInt64 || this.IsUInt64 || this.IsDouble || this.IsDecimal;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public bool IsBinary => this.Type == BsonType.Binary;
@@ -326,6 +339,18 @@ namespace LiteDB
             return new BsonValue(value);
         }
 
+        // UInt64
+        public static implicit operator UInt64(BsonValue value)
+        {
+            return (UInt64)value.RawValue;
+        }
+
+        // UInt64
+        public static implicit operator BsonValue(UInt64 value)
+        {
+            return new BsonValue(value);
+        }
+
         // Double
         public static implicit operator Double(BsonValue value)
         {
@@ -350,18 +375,6 @@ namespace LiteDB
             return new BsonValue(value);
         }
 
-        // UInt64 (to avoid ambigous between Double-Decimal)
-        public static implicit operator UInt64(BsonValue value)
-        {
-            return (UInt64)value.RawValue;
-        }
-
-        // Decimal
-        public static implicit operator BsonValue(UInt64 value)
-        {
-            return new BsonValue((Double)value);
-        }
-
         // String
         public static implicit operator String(BsonValue value)
         {
@@ -375,7 +388,7 @@ namespace LiteDB
         }
 
         // Binary
-        public static implicit operator Byte[] (BsonValue value)
+        public static implicit operator Byte[](BsonValue value)
         {
             return (Byte[])value.RawValue;
         }
@@ -441,6 +454,7 @@ namespace LiteDB
 
             if (left.IsInt32 && right.IsInt32) return left.AsInt32 + right.AsInt32;
             if (left.IsInt64 && right.IsInt64) return left.AsInt64 + right.AsInt64;
+            if (left.IsUInt64 && right.IsUInt64) return left.AsUInt64 + right.AsUInt64;
             if (left.IsDouble && right.IsDouble) return left.AsDouble + right.AsDouble;
             if (left.IsDecimal && right.IsDecimal) return left.AsDecimal + right.AsDecimal;
 
@@ -460,6 +474,7 @@ namespace LiteDB
 
             if (left.IsInt32 && right.IsInt32) return left.AsInt32 - right.AsInt32;
             if (left.IsInt64 && right.IsInt64) return left.AsInt64 - right.AsInt64;
+            if (left.IsUInt64 && right.IsUInt64) return left.AsUInt64 - right.AsUInt64;
             if (left.IsDouble && right.IsDouble) return left.AsDouble - right.AsDouble;
             if (left.IsDecimal && right.IsDecimal) return left.AsDecimal - right.AsDecimal;
 
@@ -479,6 +494,7 @@ namespace LiteDB
 
             if (left.IsInt32 && right.IsInt32) return left.AsInt32 * right.AsInt32;
             if (left.IsInt64 && right.IsInt64) return left.AsInt64 * right.AsInt64;
+            if (left.IsUInt64 && right.IsUInt64) return left.AsUInt64 * right.AsUInt64;
             if (left.IsDouble && right.IsDouble) return left.AsDouble * right.AsDouble;
             if (left.IsDecimal && right.IsDecimal) return left.AsDecimal * right.AsDecimal;
 
@@ -543,6 +559,7 @@ namespace LiteDB
 
                 case BsonType.Int32: return this.AsInt32.CompareTo(other.AsInt32);
                 case BsonType.Int64: return this.AsInt64.CompareTo(other.AsInt64);
+                case BsonType.UInt64: return this.AsUInt64.CompareTo(other.AsUInt64);
                 case BsonType.Double: return this.AsDouble.CompareTo(other.AsDouble);
                 case BsonType.Decimal: return this.AsDecimal.CompareTo(other.AsDecimal);
 
@@ -645,6 +662,7 @@ namespace LiteDB
 
                 case BsonType.Int32: return 4;
                 case BsonType.Int64: return 8;
+                case BsonType.UInt64: return 8;
                 case BsonType.Double: return 8;
                 case BsonType.Decimal: return 16;
 

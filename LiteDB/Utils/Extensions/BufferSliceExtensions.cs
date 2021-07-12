@@ -45,6 +45,11 @@ namespace LiteDB
             return BitConverter.ToInt64(buffer.Array, buffer.Offset + offset);
         }
 
+        public static UInt64 ReadUInt64(this BufferSlice buffer, int offset)
+        {
+            return BitConverter.ToUInt64(buffer.Array, buffer.Offset + offset);
+        }
+
         public static double ReadDouble(this BufferSlice buffer, int offset)
         {
             return BitConverter.ToDouble(buffer.Array, buffer.Offset + offset);
@@ -112,6 +117,7 @@ namespace LiteDB
 
                 case BsonType.Int32: return buffer.ReadInt32(offset);
                 case BsonType.Int64: return buffer.ReadInt64(offset);
+                case BsonType.UInt64: return buffer.ReadUInt64(offset);
                 case BsonType.Double: return buffer.ReadDouble(offset);
                 case BsonType.Decimal: return buffer.ReadDecimal(offset);
 
@@ -183,6 +189,11 @@ namespace LiteDB
         }
 
         public static void Write(this BufferSlice buffer, Int64 value, int offset)
+        {
+            value.ToBytes(buffer.Array, buffer.Offset + offset);
+        }
+
+        public static void Write(this BufferSlice buffer, UInt64 value, int offset)
         {
             value.ToBytes(buffer.Array, buffer.Offset + offset);
         }
@@ -274,6 +285,7 @@ namespace LiteDB
 
                     case BsonType.Int32: buffer.Write(value.AsInt32, offset); break;
                     case BsonType.Int64: buffer.Write(value.AsInt64, offset); break;
+                    case BsonType.UInt64: buffer.Write(value.AsUInt64, offset); break;
                     case BsonType.Double: buffer.Write(value.AsDouble, offset); break;
                     case BsonType.Decimal: buffer.Write(value.AsDecimal, offset); break;
 

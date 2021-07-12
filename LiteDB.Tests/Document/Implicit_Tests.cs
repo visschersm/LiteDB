@@ -19,11 +19,11 @@ namespace LiteDB.Tests.Document
 
             bi.IsInt32.Should().BeTrue();
             bl.IsInt64.Should().BeTrue();
-            bu.IsDouble.Should().BeTrue();
+            bu.IsUInt64.Should().BeTrue();
 
             bi.AsInt32.Should().Be(i);
             bl.AsInt64.Should().Be(l);
-            bu.AsDouble.Should().Be(u);
+            bu.AsUInt64.Should().Be(u);
         }
 
         [Fact]

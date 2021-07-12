@@ -101,6 +101,26 @@ namespace LiteDB
         }
 
         /// <summary>
+        /// Convert values into UINT64. Returns empty if not possible to convert
+        /// </summary>
+        public static BsonValue UINT64(BsonValue value)
+        {
+            if (value.IsNumber)
+            {
+                return value.AsUInt64;
+            }
+            else if (value.IsString)
+            {
+                if (UInt64.TryParse(value.AsString, out var val))
+                {
+                    return val;
+                }
+            }
+
+            return BsonValue.Null;
+        }
+
+        /// <summary>
         /// Convert values into DOUBLE. Returns empty if not possible to convert
         /// </summary>
         public static BsonValue DOUBLE(Collation collation, BsonValue value)
@@ -528,6 +548,11 @@ namespace LiteDB
         /// Alias to INT64(values)
         /// </summary>
         public static BsonValue LONG(BsonValue value) => INT64(value);
+
+        /// <summary>
+        /// Alias to UINT64(values)
+        /// </summary>
+        public static BsonValue ULONG(BsonValue value) => UINT64(value);
 
         /// <summary>
         /// Alias to BOOLEAN(values)

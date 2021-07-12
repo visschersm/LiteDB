@@ -95,6 +95,10 @@ namespace LiteDB
                     this.WriteExtendDataType("$numberLong", value.AsInt64.ToString(_numberFormat));
                     break;
 
+                case BsonType.UInt64:
+                    this.WriteExtendDataType("$ulong", value.AsUInt64.ToString(_numberFormat));
+                    break;
+
                 case BsonType.Decimal:
                     this.WriteExtendDataType("$numberDecimal", value.AsDecimal.ToString(_numberFormat));
                     break;

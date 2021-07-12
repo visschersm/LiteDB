@@ -350,6 +350,7 @@ namespace LiteDB
                     case "$guid": return BsonExpressionMethods.GUID(values[0]);
                     case "$date": return BsonExpressionMethods.DATE(Collation.Binary, values[0]);
                     case "$numberLong": return BsonExpressionMethods.LONG(values[0]);
+                    case "$ulong": return BsonExpressionMethods.ULONG(values[0]);
                     case "$numberDecimal": return BsonExpressionMethods.DECIMAL(Collation.Binary, values[0]);
                     case "$minValue": return BsonExpressionMethods.MINVALUE();
                     case "$maxValue": return BsonExpressionMethods.MAXVALUE();

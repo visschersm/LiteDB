@@ -266,6 +266,7 @@ namespace LiteDB.Engine
         public Int32 ReadInt32() => this.ReadNumber(BitConverter.ToInt32, 4);
         public Int64 ReadInt64() => this.ReadNumber(BitConverter.ToInt64, 8);
         public UInt32 ReadUInt32() => this.ReadNumber(BitConverter.ToUInt32, 4);
+        public UInt64 ReadUInt64() => this.ReadNumber(BitConverter.ToUInt64, 8);
         public Double ReadDouble() => this.ReadNumber(BitConverter.ToDouble, 8);
 
         public Decimal ReadDecimal()
@@ -391,6 +392,7 @@ namespace LiteDB.Engine
 
                 case BsonType.Int32: return this.ReadInt32();
                 case BsonType.Int64: return this.ReadInt64();
+                case BsonType.UInt64: return this.ReadUInt64();
                 case BsonType.Double: return this.ReadDouble();
                 case BsonType.Decimal: return this.ReadDecimal();
                 
@@ -485,7 +487,7 @@ namespace LiteDB.Engine
                     (type == 0x0A || type == 0xFF || type == 0x7F) ? 0 : // Null, MinValue, MaxValue
                     (type == 0x08) ? 1 : // Boolean
                     (type == 0x10) ? 4 : // Int
-                    (type == 0x01 || type == 0x12 || type == 0x09) ? 8 : // Double, Int64, DateTime
+                    (type == 0x01 || type == 0x12 || type == 0x09 || type == 0x11) ? 8 : // Double, Int64, DateTime, UInt64
                     (type == 0x07) ? 12 : // ObjectId
                     (type == 0x13) ? 16 : // Decimal
                     (type == 0x02) ? this.ReadInt32() : // String
@@ -558,6 +560,10 @@ namespace LiteDB.Engine
             else if (type == 0x10) // Int32
             {
                 return this.ReadInt32();
+            }
+            else if (type == 0x11) // UInt64
+            {
+                return this.ReadUInt64();
             }
             else if (type == 0x12) // Int64
             {

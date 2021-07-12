@@ -77,6 +77,7 @@ namespace LiteDB
             // basic Bson data types (cast datatype for better performance optimization)
             else if (obj is Int32) return new BsonValue((Int32)obj);
             else if (obj is Int64) return new BsonValue((Int64)obj);
+            else if (obj is UInt64) return new BsonValue((UInt64)obj);
             else if (obj is Double) return new BsonValue((Double)obj);
             else if (obj is Decimal) return new BsonValue((Decimal)obj);
             else if (obj is Byte[]) return new BsonValue((Byte[])obj);
@@ -92,13 +93,6 @@ namespace LiteDB
             else if (obj is UInt32)
             {
                 return new BsonValue(Convert.ToInt64(obj));
-            }
-            else if (obj is UInt64)
-            {
-                var ulng = ((UInt64)obj);
-                var lng = unchecked((Int64)ulng);
-
-                return new BsonValue(lng);
             }
             else if (obj is Single)
             {

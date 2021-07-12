@@ -67,6 +67,7 @@ namespace LiteDB.Tests.Document
             long negativeInt64 = -210000000000L;
             double positiveDouble = 210000000000D;
             double negativeDouble = -210000000000D;
+            ulong positiveUInt64 = 13835058055282163709UL;
 
             JsonSerializer.Deserialize(positiveInt32.ToString()).Should().Be(positiveInt32);
             JsonSerializer.Deserialize(negativeInt32.ToString()).Should().Be(negativeInt32);
@@ -74,6 +75,7 @@ namespace LiteDB.Tests.Document
             JsonSerializer.Deserialize(negativeInt64.ToString()).Should().Be(negativeInt64);
             JsonSerializer.Deserialize(positiveDouble.ToString("F1", CultureInfo.InvariantCulture)).Should().Be(positiveDouble);
             JsonSerializer.Deserialize(negativeDouble.ToString("F1", CultureInfo.InvariantCulture)).Should().Be(negativeDouble);
+            JsonSerializer.Deserialize(positiveUInt64.ToString()).Should().Be(positiveUInt64);
         }
     }
 }

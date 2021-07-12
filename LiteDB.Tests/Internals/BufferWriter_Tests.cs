@@ -84,7 +84,7 @@ namespace LiteDB.Internals
 
             source.ReadInt32(0).Should().Be(7);
             source.ReadString(4, 6).Should().Be("abc123");
-            ((char) source.ReadByte(10)).Should().Be('\0');
+            ((char)source.ReadByte(10)).Should().Be('\0');
         }
 
         [Fact]
@@ -101,6 +101,7 @@ namespace LiteDB.Internals
                 w.Write(long.MaxValue);
                 w.Write(double.MaxValue);
                 w.Write(decimal.MaxValue);
+                w.Write(ulong.MaxValue);
 
                 // min values
                 w.Write(int.MinValue);
@@ -108,6 +109,7 @@ namespace LiteDB.Internals
                 w.Write(long.MinValue);
                 w.Write(double.MinValue);
                 w.Write(decimal.MinValue);
+                w.Write(ulong.MinValue);
 
                 // zero values
                 w.Write(0); // int
@@ -115,6 +117,7 @@ namespace LiteDB.Internals
                 w.Write(0L); // long
                 w.Write(0d); // double
                 w.Write(0m); // decimal
+                w.Write(0ul); // ulong
 
                 // fixed values
                 w.Write(1990); // int
@@ -122,6 +125,7 @@ namespace LiteDB.Internals
                 w.Write(1990L); // long
                 w.Write(1990d); // double
                 w.Write(1990m); // decimal
+                w.Write(1990ul);
             }
 
             var p = 0;
@@ -136,6 +140,8 @@ namespace LiteDB.Internals
             p += 8;
             source.ReadDecimal(p).Should().Be(decimal.MaxValue);
             p += 16;
+            source.ReadUInt64(p).Should().Be(ulong.MaxValue);
+            p += 8;
 
             source.ReadInt32(p).Should().Be(int.MinValue);
             p += 4;
@@ -147,6 +153,8 @@ namespace LiteDB.Internals
             p += 8;
             source.ReadDecimal(p).Should().Be(decimal.MinValue);
             p += 16;
+            source.ReadUInt64(p).Should().Be(ulong.MinValue);
+            p += 8;
 
             source.ReadInt32(p).Should().Be(0);
             p += 4;
@@ -158,6 +166,8 @@ namespace LiteDB.Internals
             p += 8;
             source.ReadDecimal(p).Should().Be(0m);
             p += 16;
+            source.ReadUInt64(p).Should().Be(0ul);
+            p += 8;
 
             source.ReadInt32(p).Should().Be(1990);
             p += 4;
@@ -169,6 +179,8 @@ namespace LiteDB.Internals
             p += 8;
             source.ReadDecimal(p).Should().Be(1990m);
             p += 16;
+            source.ReadUInt64(p).Should().Be(1990ul);
+            p += 8;
         }
 
         [Fact]
@@ -256,8 +268,8 @@ namespace LiteDB.Internals
                 ["double"] = double.MaxValue,
                 ["decimal"] = decimal.MaxValue,
                 ["string"] = "String",
-                ["document"] = new BsonDocument {["_id"] = 1},
-                ["array"] = new BsonArray {1, 2, 3},
+                ["document"] = new BsonDocument { ["_id"] = 1 },
+                ["array"] = new BsonArray { 1, 2, 3 },
                 ["binary"] = new byte[50].Fill(255, 0, 49),
                 ["objectId"] = ObjectId.NewObjectId(),
                 ["guid"] = Guid.NewGuid(),
