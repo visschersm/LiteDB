@@ -71,14 +71,16 @@ namespace LiteDB
                             {
                                 return CreateInstance(GetGenericSetOfType(UnderlyingTypeOf(type)));
                             }
-                            else if (typeDef == typeof(IDictionary<,>))
+                            
+                            if (typeDef == typeof(IDictionary<,>))
                             {
                                 var k = type.GetGenericArguments()[0];
                                 var v = type.GetGenericArguments()[1];
 
                                 return CreateInstance(GetGenericDictionaryOfType(k, v));
                             }
-                            else if (typeDef == typeof(IList<>) ||
+                            
+                            if (typeDef == typeof(IList<>) ||
                                      typeDef == typeof(ICollection<>) ||
                                      typeDef == typeof(IEnumerable<>) ||
                                      typeof(IEnumerable).IsAssignableFrom(typeDef))

@@ -100,35 +100,37 @@ namespace LiteDB
             {
                 return value;
             }
-            else if (type == typeof(BsonDocument))
+            
+            if (type == typeof(BsonDocument))
             {
                 return value.AsDocument;
             }
-            else if (type == typeof(BsonArray))
+            
+            if (type == typeof(BsonArray))
             {
                 return value.AsArray;
             }
 
             // raw values to native bson values
-            else if (_bsonTypes.Contains(type))
+            if (_bsonTypes.Contains(type))
             {
                 return value.RawValue;
             }
 
             // simple ConvertTo to basic .NET types
-            else if (_basicTypes.Contains(type))
+            if (_basicTypes.Contains(type))
             {
                 return Convert.ChangeType(value.RawValue, type);
             }
 
             // special cast to UInt64 to Int64
-            else if (type == typeof(UInt64))
+            if (type == typeof(UInt64))
             {
                 return unchecked((UInt64)value.AsInt64);
             }
 
             // enum value is an int
-            else if (typeInfo.IsEnum)
+            if (typeInfo.IsEnum)
             {
                 if (value.IsString) return Enum.Parse(type, value.AsString);
 
@@ -136,25 +138,24 @@ namespace LiteDB
             }
 
             // if value is array, deserialize as array
-            else if (value.IsArray)
+            if (value.IsArray)
             {
                 // when array are from an object (like in Dictionary<string, object> { ["array"] = new string[] { "a", "b" } 
                 if (type == typeof(object))
                 {
                     return this.DeserializeArray(typeof(object), value.AsArray);
                 }
+
                 if (type.IsArray)
                 {
                     return this.DeserializeArray(type.GetElementType(), value.AsArray);
                 }
-                else
-                {
-                    return this.DeserializeList(type, value.AsArray);
-                }
+
+                return this.DeserializeList(type, value.AsArray);
             }
 
             // if value is document, deserialize as document
-            else if (value.IsDocument)
+            if (value.IsDocument)
             {
                 // if type is anonymous use special handler
                 if (type.IsAnonymousType())
@@ -178,42 +179,80 @@ namespace LiteDB
                 }
 
                 var entity = this.GetEntityMapper(type);
-
-                // initialize CreateInstance
-                if (entity.CreateInstance == null)
+                var hasParameterlessConstructor = entity.ForType.GetConstructor(Type.EmptyTypes) != null;
+                
+                if (hasParameterlessConstructor)
                 {
-                    entity.CreateInstance =
-                        this.GetTypeCtor(entity) ??
-                        ((BsonDocument v) => Reflection.CreateInstance(entity.ForType));
-                }
-
-                var o = _typeInstantiator(type) ?? entity.CreateInstance(doc);
-
-                if (o is IDictionary dict)
-                {
-                    if (o.GetType().GetTypeInfo().IsGenericType)
+                    // initialize CreateInstance
+                    if (entity.CreateInstance == null)
                     {
-                        var k = type.GetGenericArguments()[0];
-                        var t = type.GetGenericArguments()[1];
+                        entity.CreateInstance =
+                            this.GetTypeCtor(entity) ??
+                            ((BsonDocument v) => Reflection.CreateInstance(entity.ForType));
+                    }
 
-                        this.DeserializeDictionary(k, t, dict, value.AsDocument);
+                    var o = _typeInstantiator(type) ?? entity.CreateInstance(doc);
+
+                    if (o is IDictionary dict)
+                    {
+                        if (o.GetType().GetTypeInfo().IsGenericType)
+                        {
+                            var k = type.GetGenericArguments()[0];
+                            var t = type.GetGenericArguments()[1];
+
+                            this.DeserializeDictionary(k, t, dict, value.AsDocument);
+                        }
+                        else
+                        {
+                            this.DeserializeDictionary(typeof(object), typeof(object), dict, value.AsDocument);
+                        }
                     }
                     else
                     {
-                        this.DeserializeDictionary(typeof(object), typeof(object), dict, value.AsDocument);
+                        this.DeserializeObject(entity, o, doc);
                     }
-                }
-                else
-                {
-                    this.DeserializeObject(entity, o, doc);
-                }
 
-                return o;
+                    return o;
+                }
+                
+
+                return CreateInstanceWithParameters(entity, doc);
             }
 
             // in last case, return value as-is - can cause "cast error"
             // it's used for "public object MyInt { get; set; }"
             return value.RawValue;
+        }
+
+        private object CreateInstanceWithParameters(EntityMapper entity, BsonDocument doc)
+        {
+            var arguments = GetArguments(entity, doc);
+
+            return Activator.CreateInstance(entity.ForType, arguments.ToArray());
+        }
+
+        private List<object> GetArguments(EntityMapper entity, BsonDocument doc)
+        {
+            var constructor = entity.ForType.GetConstructors().First();
+            var parameters = constructor.GetParameters();
+            List<object> attributes = new();
+
+            foreach (var parameter in parameters)
+            {
+                var name = entity.Members.FirstOrDefault(x
+                    => x.MemberName.Equals(parameter.Name, StringComparison.OrdinalIgnoreCase))?.FieldName;
+
+                if (doc.TryGetValue(name, out var value))
+                {
+                    attributes.Add(this.Deserialize(parameter.ParameterType, value));
+                }
+                else
+                {
+                    attributes.Add(this.Deserialize(parameter.ParameterType, BsonValue.Null));
+                }
+            }
+
+            return attributes;
         }
 
         private object DeserializeArray(Type type, BsonArray array)
